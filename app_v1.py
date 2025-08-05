@@ -40,9 +40,10 @@ warnings.filterwarnings('ignore')
 # CONFIGURATION - UPDATE THESE PATHS IF YOUR DATA IS ELSEWHERE
 # =============================================================================
 
-Perfect! Here's how to update your Config class to work with git repository paths instead of local drive paths:
-Updated Configuration Class
-pythonimport os
+#Perfect! Here's how to update your Config class to work with git repository paths instead of local drive paths:
+#Updated Configuration Class
+#python
+import os
 import streamlit as st
 
 class Config:
@@ -1308,3 +1309,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
