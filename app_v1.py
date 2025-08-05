@@ -40,13 +40,65 @@ warnings.filterwarnings('ignore')
 # CONFIGURATION - UPDATE THESE PATHS IF YOUR DATA IS ELSEWHERE
 # =============================================================================
 
+Perfect! Here's how to update your Config class to work with git repository paths instead of local drive paths:
+Updated Configuration Class
+pythonimport os
+import streamlit as st
+
 class Config:
     """Configuration settings for the dashboard."""
-
-    # Data paths - MODIFY THESE TO MATCH YOUR SETUP
-    BASE_DATA_DIR = r"C:\Data\zStreamlit_Mapping\data"
+    
+    @staticmethod
+    def get_base_path():
+        """Get the base path - works for both local development and Streamlit Cloud"""
+        # For Streamlit Cloud deployment, use relative paths
+        if os.path.exists("data"):  # Repository structure
+            return "data"
+        
+        # For local development, you can still use your local path
+        local_path = r"C:\Data\zStreamlit_Mapping\data"
+        if os.path.exists(local_path):
+            return local_path
+            
+        # Fallback - current directory
+        return "."
+    
+    # Dynamic data paths based on environment
+    BASE_DATA_DIR = get_base_path.__func__()  # Call the static method
     SHAPEFILE_PATH = os.path.join(BASE_DATA_DIR, "greater_sydney_lgas.shp")
     CSV_DIRECTORY = os.path.join(BASE_DATA_DIR, "TXge35", "CSV")
+    
+    # Validation methods
+    @classmethod
+    def validate_paths(cls):
+        """Validate that all required paths exist"""
+        missing_paths = []
+        
+        if not os.path.exists(cls.SHAPEFILE_PATH):
+            missing_paths.append(f"Shapefile: {cls.SHAPEFILE_PATH}")
+            
+        if not os.path.exists(cls.CSV_DIRECTORY):
+            missing_paths.append(f"CSV Directory: {cls.CSV_DIRECTORY}")
+            
+        return missing_paths
+    
+    @classmethod
+    def display_config_info(cls):
+        """Display configuration information in Streamlit"""
+        with st.expander("📁 Data Configuration", expanded=False):
+            st.write("**Current Data Paths:**")
+            st.code(f"Base Directory: {cls.BASE_DATA_DIR}")
+            st.code(f"Shapefile: {cls.SHAPEFILE_PATH}")
+            st.code(f"CSV Directory: {cls.CSV_DIRECTORY}")
+            
+            # Check if paths exist
+            missing = cls.validate_paths()
+            if missing:
+                st.error("❌ Missing data files:")
+                for path in missing:
+                    st.write(f"- {path}")
+            else:
+                st.success("✅ All data paths found!")
 
     # Map settings
     DEFAULT_CENTER = {"lat": -33.8688, "lon": 151.2093}  # Sydney coordinates
@@ -1254,4 +1306,5 @@ def main():
                     st.write(f"... and {len(csv_files) - 10} more files")
 
 if __name__ == "__main__":
+
     main()
